@@ -70,6 +70,17 @@ strip MAX-LEDS led2bytes $00 fill
   r> 1 writetriplett
 ;
 
+\ sets color of an led
+: setpix ( rgb index - )
+    1+ 9 * strip + >r
+    dup $0000ff and
+    r@ 2 writetriplett
+    dup $00ff00 and 8 rshift
+    r@ 0 writetriplett
+    $ff0000 and 16 rshift
+    r> 1 writetriplett
+;
+
 : led-clear ( - )
   MAX-LEDS 0 do
     $00 $00 $00 i setpixel
@@ -109,7 +120,7 @@ strip MAX-LEDS led2bytes $00 fill
   OMODE-AF-PP MOSI2 io-mode!
   14 bit RCC-APB1ENR bis!  \ set SPI2EN
   %1100000001011100 SPI2-CR1 !  \ clk/8, i.e. 4.5 MHz, master
-  \ SPI2-SR @ drop         \ appears to be needed to avoid hang in some cases
+  SPI2-SR @ drop         \ appears to be needed to avoid hang in some cases
   1 bit SPI2-CR2 bis!    \ enable DMA Tx
 
   led-show
@@ -146,7 +157,7 @@ strip MAX-LEDS led2bytes $00 fill
 ;
 
 : ringanimate ( - )
-  0 100 do
-    i demodata 200 ms
+  100 0 do
+    i demodata drop 200 ms
   loop
 ;
